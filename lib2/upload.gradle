@@ -1,0 +1,39 @@
+group 'com.kingboy'
+version '1.0'
+//这个是上传插件，必须有的
+apply plugin: 'maven-publish'
+apply plugin: 'maven'
+def remoteUrl = 'http://localhost:8081/repository/maxrocky/'
+def pomName = 'lib2'
+def pomVersion = '1.0.1'
+def groupId2 = "com.lib4"
+uploadArchives {
+    configuration = configurations.archives
+    repositories.mavenDeployer{
+        repository(url: remoteUrl) {
+            authentication(userName: NEXUS_USERNAME, password: NEXUS_PASSWORD)
+        }
+        snapshotRepository(url: remoteUrl) {
+            authentication(userName: NEXUS_USERNAME, password: NEXUS_PASSWORD)
+        }
+        //'groupId:artifactId:version' 或 'groudId:artifactId:version@aar' 形式
+        pom.project {
+            name pomName
+            version pomVersion
+            artifactId pomName
+            groupId groupId2
+            packaging POM_PACKAGING
+            description POM_DESCRIPTION
+        }
+    }
+}
+// 生成sources.jar  写 artifacts ｛｝ 之前
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+artifacts {
+    //编译的源码类型
+    archives androidSourcesJar
+    //archives androidJavadocsJar
+}
